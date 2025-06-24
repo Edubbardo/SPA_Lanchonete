@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Livraria</title>
+    <style>
+        #LikeIcone,#DislikeIcone,#ComentarioIcone{
+            width: 30px;
+            height: 30px;
+            cursor:pointer;
+        }
+        .livro{
+            display:flex;
+            border:#C2BEBE 1px solid;
+            border-collapse: collapse;
+        }
+        .ImagemLivro{
+            width: 200px;
+            height: 200px;
+            padding:15px;
+        }
+        .interacoesLivro{
+            border:#C2BEBE 1px solid;
+            border-collapse: collapse;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
+        .LDC{
+            display: flex;
+            align-items: center;
+        }
+        .LDC h2{
+            margin:5px
+        }
+        #JanelaLogin {
+            display: none;
+            position: fixed;
+            margin:auto;
+            z-index: 20;
+            background-color: white;
+            border-radius:10px;
+            padding:20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+        }
+        #inputEmail, #inputSenha{
+            padding:5px;
+            width: 80%;
+            border-radius:10px;
+            border:1px black solid;
+            font-size:larger;
+        }
+        #Escurecedor{
+            display: none;
+            background: rgba(0, 0, 0, 0.6);
+            width: 100%;
+            height: 100%;
+            position: fixed;
+            top:0px;
+            left:0px;
+            z-index:10;
+        }
+    </style>
+</head>
+<body style="display:flex;background-color:#d3d0d0;justify-content:space-around;font-family: 'Inter',sans-serif">
+    <!--Perfil e Logo-->
+    <div style="align-self: flex-start;background-color:#FAFAFA;border-radius:20px;padding:8px;border:#C2BEBE">
+        <img src="" style="width: 120px;height: 100px;margin:0 auto;display: block;" id="LogoLib">
+        <h1 style="color:#D97014;margin:0px;width: 99.9%;text-align: center;" id="NomeDaEmpresa">Carregando Nome...</h1>
+        <hr style="border:#D97014 solid 1px; width: 90%;"/>
+        <h2 id="LikesTot" style="text-align: center;margin:0px;">Carregando Likes...</h2>
+        <h2 id="DislikesTot" style="text-align: center;margin:0px;">Carregando Dislikes...</h2>
+    </div>
+
+    <!--Livros-->
+    <div id='DivLivros' style="border:1px solid #C2BEBE;background-color:#FAFAFA;border-radius:20px;padding:30px;padding-right:100px;padding-left:100px;align-self: flex-start;">
+        <h1 style="color:#000000;text-align:center;margin:0px;">Livros</h1>
+        <hr style="border:#D97014 1px solid;" />
+    </div>
+    <script>
+        async function CarregarLivros() {
+    try {
+        const resposta = await fetch('/mexerDb/PuxarLivros.js');
+        const Livros = await resposta.json();
+
+        const DivLivros = document.getElementById('DivLivros');
+
+        Livros.livros.forEach(livro => {
+            const div = document.createElement("div");
+            div.innerHTML = `
+            <div class="livro">
+                <img src="${livro.imagem_capa}" class="ImagemLivro">
+                <div>
+                    <h1>${livro.titulo}</h1>
+                    <h2>${livro.autor}</h2>
+                    <h2>${livro.localizacao}</h2>
+                </div>
+                </div>
+                <div class="interacoesLivro">
+                    <div class="LDC">
+                        <img src="https://cdn-icons-png.flaticon.com/512/126/126473.png" onClick="Like()" id="LikeIcone">
+                        <h2>1</h2>
+                    </div>
+                    <div class="LDC">
+                        <img src="https://cdn-icons-png.flaticon.com/512/126/126504.png" onClick="Dislike()" id="DislikeIcone">
+                        <h2>2</h2>
+                    </div>
+                    <div class="LDC">
+                        <img src='https://cdn-icons-png.flaticon.com/512/1230/1230203.png' onClick="Comentar()" id="ComentarioIcone">
+                        <h2>3</h2>
+                    </div>
+                </div>
+                <br>
+            `;
+            DivLivros.appendChild(div);
+        });
+
+    } catch (erro) {
+        window.alert(erro);
+        console.error(erro);
+    }
+}
+
+CarregarLivros();
+function Comentar(){
+    window.alert('a')
+}
+function Like(){
+    window.alert('b')
+}
+function Dislike(){
+    window.alert('c')
+}
+    </script>
+
+
+    <!--Login-->
+    <div style="background-color: white;align-self: flex-start;border-radius:20px;width: 15%;padding:20px;border:#C2BEBE">
+        <h1 style="text-align: center;margin:0px;">Login</h1>
+        <button style="color:#FFFFFF;background-color:#D97014;font-size:xx-large;border:none;border-radius:20px;width: 100%;cursor:pointer" onclick="MostrarLogin()"><b>Entrar</b></button>
+    </div>
+
+    <div id="JanelaLogin">
+    
+      <h3 style="margin-top:0px;">Digite as informações:</h3>
+      <input type="text" id="inputEmail" placeholder="Digite seu E-mail"><br><br>
+      <input type="password" id="inputSenha" placeholder="Digite sua Senha"><br><br>
+      <div class="buttons">
+        <button onclick="FecharLogin()" style="border:#D97014 1px solid;background-color: none;color:black;width: 150px;font-size:x-large;cursor:pointer">Cancelar</button>
+        <button onclick="ConfirmarLogin()" style="background-color: #D97014;color:white;border:none;width: 150px;font-size: x-large;cursor:pointer">Entrar</button>
+      </div>
+    </div>
+  
+  <div id="Escurecedor"></div>
+    <script>
+    function MostrarLogin() {
+        document.getElementById('Escurecedor').style.display= 'block';
+        document.getElementById('JanelaLogin').style.display = 'block';
+      
+    }
+
+    function FecharLogin() {
+        document.getElementById('JanelaLogin').style.display = 'none';
+        document.getElementById('Escurecedor').style.display= 'none';
+    }
+
+    function ConfirmarLogin() {
+      const emailSite = document.getElementById('inputEmail').value;
+      const senhaSite = document.getElementById('inputSenha').value;
+      alert(`Valores: ${emailSite}, ${senhaSite}`);
+      FecharLogin();
+    }
+    </script>
+
+    <footer style="width: 100%;position: absolute;bottom:-180px;left:0px;background-color:#D97014;color:#FAFAFA;display: flex;justify-content: space-between;align-items: center;">
+        <h1 style="margin-left:5%;">Livros & Leituras</h1>
+        <div>
+            <a href="https://www.instagram.com" target="_blank"><img style="width: 50px;" src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Instagram_icon.png/1200px-Instagram_icon.png"></a>
+            <a href="https://www.x.com" target="_blank"><img style="width: 50px;margin-left:10px;margin-right:5px" src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Logo_of_Twitter.svg/1200px-Logo_of_Twitter.svg.png"></a>
+            <a href="https://www.whatsapp.com" target="_blank"><img style="width: 50px;margin-left:5px;margin-right:10px" src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/WhatsApp.svg/1022px-WhatsApp.svg.png"></a>
+            <a href="https://www.globe.com" target="_blank"><img style="width: 50px;" src="https://images.seeklogo.com/logo-png/27/2/globe-logo-png_seeklogo-276795.png"></a>
+        </div>
+        <h1 style="margin-right:5%">Copyright © 2024</h1>
+    </footer>
+    <script>
+        async function attLikes() {
+        try {
+            const resposta = await fetch('/mexerDb/PuxarLikes.js');
+            const dados = await resposta.json();
+            document.getElementById('LikesTot').textContent = dados.texto;
+        } catch (erro) {
+            document.getElementById('LikesTot').textContent = 'Erro ao carregar likes';
+            console.error(erro);
+        }
+    }
+
+    async function attDislikes() {
+        try {
+            const resposta = await fetch('/mexerDb/PuxarDislikes.js');
+            const dados = await resposta.json();
+            document.getElementById('DislikesTot').textContent = dados.texto;
+        } catch (erro) {
+            document.getElementById('DislikesTot').textContent = 'Erro ao carregar dislikes';
+            console.error(erro);
+        }
+    }
+
+    async function attNome(){
+        try{
+            const resposta = await fetch('/mexerDb/PuxarNome.js')
+            const dados = await resposta.json()
+            document.getElementById('NomeDaEmpresa').textContent = dados.texto
+        }catch(erro){
+            document.getElementById('NomeDaEmpresa').textContent = 'Erro ao carregar nome'
+            console.error(erro)
+        }
+    }
+    async function attLogo(){
+        try{
+            const resposta = await fetch('/mexerDb/PuxarLogo.js')
+            const dados = await resposta.json()
+            document.getElementById('LogoLib').src = dados.texto
+        }catch(erro){
+            document.getElementById('LogoLib').textContent = 'Erro ao carregar URL'
+            console.error(erro)
+        }
+    }
+    attLikes();
+    attDislikes();
+    attNome();
+    attLogo()
+    </script>
+</body>
+</html>

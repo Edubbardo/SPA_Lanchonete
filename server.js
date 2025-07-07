@@ -5,7 +5,7 @@ import PuxarLikes from './mexerDB/PuxarLikes.js';
 import PuxarDislikes from './mexerDB/PuxarDislikes.js';
 import PuxarNome from './mexerDB/PuxarNome.js'
 import PuxarLogo from './mexerDB/PuxarLogo.js'
-import PuxarLivros from './mexerDB/PuxarLivros.js'
+import PuxarPublicacoes from './mexerDB/PuxarPublicacoes.js'
 
 const app = express();
 const port = 3000;
@@ -55,13 +55,13 @@ app.get('/mexerDb/PuxarLogo.js', async (req, res) => {
   }
 })
 
-app.get('/mexerDb/PuxarLivros.js', async (req, res) => {
+app.get('/mexerDb/PuxarPublicacoes.js', async (req, res) => {
   try{
-    const livros = await PuxarLivros()
-    res.json({livros})
+    const publicacoes = await PuxarPublicacoes()
+    res.json({publicacoes})
   }catch(erro){
-    console.error('Erro ao obter os livros')
-    res.status(500).json({erro: 'Erro ao obter os livros'})
+    console.error('Erro ao obter as publicações')
+    res.status(500).json({erro: 'Erro ao obter as publicações'})
   }
 })
 

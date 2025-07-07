@@ -10,21 +10,25 @@
             height: 30px;
             cursor:pointer;
         }
-        .livro{
+        .publicacoes{
             display:flex;
+            flex-direction: column;
             border:#C2BEBE 1px solid;
             border-collapse: collapse;
+            padding:5px;
+            border-bottom:hidden;
         }
-        .ImagemLivro{
-            width: 200px;
-            height: 200px;
-            padding:15px;
+        .ImagemPrato{
+            width: 600px;
+            height: 300px;
+            padding:2px;
         }
-        .interacoesLivro{
+        .interacoesPublicacoes{
             border:#C2BEBE 1px solid;
+            border-top:none;
             border-collapse: collapse;
             display: flex;
-            justify-content: space-around;
+            justify-content: space-between;
             align-items: center;
         }
         .LDC{
@@ -63,57 +67,53 @@
         }
     </style>
 </head>
-<body style="display:flex;background-color:#d3d0d0;justify-content:space-around;font-family: 'Inter',sans-serif">
+<body style="display:flex;background-color:#d3d0d0;justify-content:space-around;font-family: 'Inter',sans-serif;padding-bottom:80px">
     <!--Perfil e Logo-->
     <div style="align-self: flex-start;background-color:#FAFAFA;border-radius:20px;padding:8px;border:#C2BEBE">
-        <img src="" style="width: 120px;height: 100px;margin:0 auto;display: block;" id="LogoLib">
-        <h1 style="color:#D97014;margin:0px;width: 99.9%;text-align: center;" id="NomeDaEmpresa">Carregando Nome...</h1>
+        <img src="Imagens/logo_sabor_do_brasil.png" style="width: 120px;height: 100px;margin:0 auto;display: block;">
+        <h1 style="color:black;margin:0px;text-align: center;">Sabor do Brasil</h1>
         <hr style="border:#D97014 solid 1px; width: 90%;"/>
         <h2 id="LikesTot" style="text-align: center;margin:0px;">Carregando Likes...</h2>
         <h2 id="DislikesTot" style="text-align: center;margin:0px;">Carregando Dislikes...</h2>
     </div>
-
-    <!--Livros-->
-    <div id='DivLivros' style="border:1px solid #C2BEBE;background-color:#FAFAFA;border-radius:20px;padding:30px;padding-right:100px;padding-left:100px;align-self: flex-start;">
-        <h1 style="color:#000000;text-align:center;margin:0px;">Livros</h1>
-        <hr style="border:#D97014 1px solid;" />
+    <!--Pubs-->
+    <div id='DivPublicacoes' style="border: #ff0000 solid 1px ;background-color:#FAFAFA;border-radius:20px;padding:30px;padding-right:100px;padding-left:100px;align-self: flex-start;">
+            <h1 style="color:#000000;text-align:center;margin:0px;border:#C2BEBE 1px solid;border-collapse: collapse;">Publicações</h1>
     </div>
-    <script>
-        async function CarregarLivros() {
+    <script>    
+        async function CarregarPublicacoes() {
     try {
-        const resposta = await fetch('/mexerDb/PuxarLivros.js');
-        const Livros = await resposta.json();
+        const resposta = await fetch('/mexerDb/PuxarPublicacoes.js');
+        const Publicacoes = await resposta.json();
 
-        const DivLivros = document.getElementById('DivLivros');
+        const DivPublicacoes = document.getElementById('DivPublicacoes');
 
-        Livros.livros.forEach(livro => {
+        Publicacoes.publicacoes.forEach(publicacoes => {
             const div = document.createElement("div");
             div.innerHTML = `
-            <div class="livro">
-                <img src="${livro.imagem_capa}" class="ImagemLivro">
-                <div>
-                    <h1>${livro.titulo}</h1>
-                    <h2>${livro.autor}</h2>
-                    <h2>${livro.localizacao}</h2>
+            <div class="publicacoes">
+                <h1 style='margin:0px'>${publicacoes.nome_prato}</h1>
+                <img src="${publicacoes.foto_prato}" class="ImagemPrato">
+                <div style='display:flex;justify-content:space-between'>
+                    <h2 style='margin:0px'>${publicacoes.localizacao}</h2>
+                    <h2 style='margin:0px'>${publicacoes.cidade}</h2>
                 </div>
                 </div>
-                <div class="interacoesLivro">
+                <div class="interacoesPublicacoes">
                     <div class="LDC">
-                        <img src="https://cdn-icons-png.flaticon.com/512/126/126473.png" onClick="Like()" id="LikeIcone">
+                        <img src="Imagens/icones/flecha_cima_vazia.svg" onClick="Like()" id="LikeIcone">
                         <h2>1</h2>
-                    </div>
-                    <div class="LDC">
-                        <img src="https://cdn-icons-png.flaticon.com/512/126/126504.png" onClick="Dislike()" id="DislikeIcone">
+                        <img src="Imagens/icones/flecha_baixo_vazia.svg" onClick="Dislike()" id="DislikeIcone">
                         <h2>2</h2>
                     </div>
                     <div class="LDC">
-                        <img src='https://cdn-icons-png.flaticon.com/512/1230/1230203.png' onClick="Comentar()" id="ComentarioIcone">
+                        <img src='Imagens/icones/chat.svg' onClick="Comentar()" id="ComentarioIcone">
                         <h2>3</h2>
                     </div>
                 </div>
                 <br>
             `;
-            DivLivros.appendChild(div);
+            DivPublicacoes.appendChild(div);
         });
 
     } catch (erro) {
@@ -121,8 +121,8 @@
         console.error(erro);
     }
 }
+CarregarPublicacoes();
 
-CarregarLivros();
 function Comentar(){
     window.alert('a')
 }
@@ -173,8 +173,8 @@ function Dislike(){
     }
     </script>
 
-    <footer style="width: 100%;position: absolute;bottom:-180px;left:0px;background-color:#D97014;color:#FAFAFA;display: flex;justify-content: space-between;align-items: center;">
-        <h1 style="margin-left:5%;">Livros & Leituras</h1>
+    <footer style="width: 100%;position: fixed;bottom:0px;left:0px;background-color:#D97014;color:#FAFAFA;display: flex;justify-content: space-between;align-items: center;height:65px;">
+        <h1 style="margin-left:5%;">Sabor do Brasil</h1>
         <div>
             <a href="https://www.instagram.com" target="_blank"><img style="width: 50px;" src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Instagram_icon.png/1200px-Instagram_icon.png"></a>
             <a href="https://www.x.com" target="_blank"><img style="width: 50px;margin-left:10px;margin-right:5px" src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Logo_of_Twitter.svg/1200px-Logo_of_Twitter.svg.png"></a>

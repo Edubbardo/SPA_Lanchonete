@@ -157,7 +157,6 @@ function Dislike(){
     function MostrarLogin() {
         document.getElementById('Escurecedor').style.display= 'block';
         document.getElementById('JanelaLogin').style.display = 'block';
-      
     }
 
     function FecharLogin() {
@@ -165,11 +164,34 @@ function Dislike(){
         document.getElementById('Escurecedor').style.display= 'none';
     }
 
-    function ConfirmarLogin() {
-      const emailSite = document.getElementById('inputEmail').value;
-      const senhaSite = document.getElementById('inputSenha').value;
-      alert(`Valores: ${emailSite}, ${senhaSite}`);
-      FecharLogin();
+    async function ConfirmarLogin() {
+      const email = document.getElementById('inputEmail').value;
+      const senha = document.getElementById('inputSenha').value;
+      
+    await fetch('/mexerDb/FazerLogin.js', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, senha })
+    }).then(res => res.json()) 
+    .then(data => {
+    if (data.sucesso) {
+      localStorage.setItem('usuario', JSON.stringify(data.usuario));
+      alert('Login bem-sucedido!');
+      location.reload()
+    } else {
+      alert(data.mensagem);
+    }
+  })
+  .catch(err => {
+    console.error('Erro ao fazer login:', err);
+    alert('Erro de conexão com o servidor');
+  });
+    }
+    function LoginFeito(){
+        
+    }
+    if (localStorage.getItem('usuario')) {
+    LoginFeito();
     }
     </script>
 
@@ -206,30 +228,8 @@ function Dislike(){
         }
     }
 
-    async function attNome(){
-        try{
-            const resposta = await fetch('/mexerDb/PuxarNome.js')
-            const dados = await resposta.json()
-            document.getElementById('NomeDaEmpresa').textContent = dados.texto
-        }catch(erro){
-            document.getElementById('NomeDaEmpresa').textContent = 'Erro ao carregar nome'
-            console.error(erro)
-        }
-    }
-    async function attLogo(){
-        try{
-            const resposta = await fetch('/mexerDb/PuxarLogo.js')
-            const dados = await resposta.json()
-            document.getElementById('LogoLib').src = dados.texto
-        }catch(erro){
-            document.getElementById('LogoLib').textContent = 'Erro ao carregar URL'
-            console.error(erro)
-        }
-    }
     attLikes();
     attDislikes();
-    attNome();
-    attLogo()
     </script>
 </body>
 </html>

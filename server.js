@@ -1,11 +1,12 @@
 import express from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import bodyParser from 'body-parser';
 import PuxarLikes from './mexerDB/PuxarLikes.js';
 import PuxarDislikes from './mexerDB/PuxarDislikes.js';
-import PuxarNome from './mexerDB/PuxarNome.js'
-import PuxarLogo from './mexerDB/PuxarLogo.js'
 import PuxarPublicacoes from './mexerDB/PuxarPublicacoes.js'
+import FazerLogin from './mexerDB/FazerLogin.js'
+
 
 const app = express();
 const port = 3000;
@@ -14,7 +15,7 @@ const port = 3000;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 app.use(express.static(path.join(__dirname, 'public')));
-
+app.use(bodyParser.json());
 
 app.get('/mexerDb/PuxarLikes.js', async (req, res) => {
     try {
@@ -35,26 +36,6 @@ app.get('/mexerDb/PuxarDislikes.js', async (req, res) => {
     }
 });
 
-app.get('/mexerDb/PuxarNome.js', async (req,res) => {
-  try{
-      const nome = await PuxarNome()
-      res.json({texto: nome})
-  }catch(erro){
-      console.error('Erro ao obter o Nome da empresa')
-      res.status(500).json({erro: 'Erro ao obter Nome da Empresa'})
-  }
-})
-
-app.get('/mexerDb/PuxarLogo.js', async (req, res) => {
-  try{
-    const logo = await PuxarLogo()
-    res.json({texto: logo})
-  }catch(erro){
-    console.error('Erro ao obter o URL da imagem')
-    res.status(500).json({erro: 'Erro ao obter URL da imagem'})
-  }
-})
-
 app.get('/mexerDb/PuxarPublicacoes.js', async (req, res) => {
   try{
     const publicacoes = await PuxarPublicacoes()
@@ -64,6 +45,21 @@ app.get('/mexerDb/PuxarPublicacoes.js', async (req, res) => {
     res.status(500).json({erro: 'Erro ao obter as publicações'})
   }
 })
+
+app.post('/mexerDb/FazerLogin.js', async (req, res) => {
+  const { email, senha } = req.body;
+
+  try {
+    const usuario = await FazerLogin(email, senha);
+    if (usuario) {
+      res.json({ sucesso: true, usuario });
+    } else {
+      res.status(401).json({ sucesso: false, mensagem: 'E-mail ou senha incorretos' });
+    }
+  } catch (erro) {
+    res.status(500).json({ erro: 'Erro no login' });
+  }
+});
 
 app.listen(port, () => {
     console.log(`Servidor rodando em http://localhost:${port}`);

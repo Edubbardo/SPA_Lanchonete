@@ -6,6 +6,8 @@ import PuxarLikes from './mexerDB/PuxarLikes.js';
 import PuxarDislikes from './mexerDB/PuxarDislikes.js';
 import PuxarPublicacoes from './mexerDB/PuxarPublicacoes.js'
 import FazerLogin from './mexerDB/FazerLogin.js'
+import PuxarDislikesUsuario from './mexerDB/PuxarDislikesUsuario.js'
+import PuxarLikesUsuario from './mexerDB/PuxarLikesUsuario.js'
 
 
 const app = express();
@@ -33,6 +35,28 @@ app.get('/mexerDb/PuxarDislikes.js', async (req, res) => {
     } catch (erro) {
         console.error('Erro ao obter dislikes:', erro);
         res.status(500).json({ erro: 'Erro ao obter dislikes' });
+    }
+});
+
+app.post('/mexerDb/PuxarDislikesUsuario.js', async (req, res) => {
+  const {id} = req.body
+    try {
+        const dislikesUsuario = await PuxarDislikesUsuario(id);
+        res.json({ texto: `${dislikesUsuario} Dislikes` });
+    } catch (erro) {
+        console.error('Erro ao obter dislikes:', erro);
+        res.status(500).json({ erro: 'Erro ao obter dislikes' });
+    }
+});
+
+app.post('/mexerDb/PuxarLikesUsuario.js', async (req, res) => {
+  const {id} = req.body
+    try {
+        const likesUsuario = await PuxarLikesUsuario(id);
+        res.json({ texto: `${likesUsuario} Likes` });
+    } catch (erro) {
+        console.error('Erro ao obter likes:', erro);
+        res.status(500).json({ erro: 'Erro ao obter likes' });
     }
 });
 

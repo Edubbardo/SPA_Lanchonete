@@ -65,11 +65,17 @@
             left:0px;
             z-index:10;
         }
+        .fotoPerfil{
+            width: 160px;
+            height: 160px;
+            border-radius:1000px;
+            margin:auto;
+        }
     </style>
 </head>
 <body style="display:flex;background-color:#d3d0d0;justify-content:space-around;font-family: 'Inter',sans-serif;padding-bottom:80px">
     <!--Perfil e Logo-->
-    <div style="align-self: flex-start;background-color:#FAFAFA;border-radius:20px;padding:8px;border:#C2BEBE">
+    <div id="Perfil" style="align-self: flex-start;background-color:#FAFAFA;border-radius:20px;padding:8px;padding-left:40px;padding-right:40px;border:#C2BEBE">
         <img src="Imagens/logo_sabor_do_brasil.png" style="width: 120px;height: 100px;margin:0 auto;display: block;">
         <h1 style="color:black;margin:0px;text-align: center;">Sabor do Brasil</h1>
         <hr style="border:#D97014 solid 1px; width: 90%;"/>
@@ -111,7 +117,6 @@
                         <h2>3</h2>
                     </div>
                 </div>
-                <br>
             `;
             DivPublicacoes.appendChild(div);
         });
@@ -136,7 +141,7 @@ function Dislike(){
 
 
     <!--Login-->
-    <div style="background-color: white;align-self: flex-start;border-radius:20px;width: 15%;padding:20px;border:#C2BEBE">
+    <div id='DivDeLogin' style="background-color: white;align-self: flex-start;border-radius:20px;width: 15%;padding:20px;border:#C2BEBE">
         <h1 style="text-align: center;margin:0px;">Login</h1>
         <button style="color:#FFFFFF;background-color:#D97014;font-size:xx-large;border:none;border-radius:20px;width: 100%;cursor:pointer" onclick="MostrarLogin()"><b>Entrar</b></button>
     </div>
@@ -163,7 +168,10 @@ function Dislike(){
         document.getElementById('JanelaLogin').style.display = 'none';
         document.getElementById('Escurecedor').style.display= 'none';
     }
-
+    function DesfazerLogin(){
+        localStorage.clear()
+        location.reload()
+    }
     async function ConfirmarLogin() {
       const email = document.getElementById('inputEmail').value;
       const senha = document.getElementById('inputSenha').value;
@@ -187,9 +195,60 @@ function Dislike(){
     alert('Erro de conexão com o servidor');
   });
     }
-    function LoginFeito(){
-        
+    async function attLikesUsuario() {
+    const infousuario = JSON.parse(localStorage.getItem('usuario'));
+    const id = infousuario.id;
+
+    try {
+        const resposta = await fetch('/mexerDB/PuxarLikesUsuario.js', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({id})
+        });
+
+        const dados = await resposta.json();
+        document.getElementById('LikesUserTot').textContent = dados.texto;
+    } catch (erro) {
+        document.getElementById('LikesUserTot').textContent = 'Erro ao carregar Likes';
+        console.error(erro);
     }
+}
+
+    async function attDislikesUsuario() {
+    const infousuario = JSON.parse(localStorage.getItem('usuario'));
+    const id = infousuario.id;
+
+    try {
+        const resposta = await fetch('/mexerDB/PuxarDislikesUsuario.js', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({id})
+        });
+
+        const dados = await resposta.json();
+        document.getElementById('DislikesUserTot').textContent = dados.texto;
+    } catch (erro) {
+        document.getElementById('DislikesUserTot').textContent = 'Erro ao carregar dislikes';
+        console.error(erro);
+    }
+    }
+    function LoginFeito(){
+        const log = document.getElementById('DivDeLogin')
+        log.innerHTML = `
+        <h1 style="text-align: center;margin:0px;">Deslogar</h1><br>
+        <button style="color:#FFFFFF;background-color:#D97014;font-size:xx-large;border:none;border-radius:20px;width: 100%;cursor:pointer" onclick="DesfazerLogin()"><b>Sair</b></button>
+        `
+        const perfil = document.getElementById('Perfil')
+        const infousuario = JSON.parse(localStorage.getItem('usuario'))
+        perfil.innerHTML = `
+        <img class='fotoPerfil' src="${infousuario.foto_perfil}">
+        <h2 style='text-align:center;margin:0px'>${infousuario.nome}</h2>
+        <hr style='border:1px orange solid'>
+        <h2 id='LikesUserTot' style='margin:0px;text-align:center'>Carregando Likes...</h2>
+        <h2 id='DislikesUserTot' style='margin:0px;text-align:center'>Carregando Dislikes...</h2>
+        `
+    }
+
     if (localStorage.getItem('usuario')) {
     LoginFeito();
     }
@@ -227,9 +286,15 @@ function Dislike(){
             console.error(erro);
         }
     }
-
-    attLikes();
-    attDislikes();
+    
+    if (localStorage.getItem('usuario')){
+        attDislikesUsuario()
+        attLikesUsuario()
+    }else{
+        attLikes();
+        attDislikes();
+    }
+    
     </script>
 </body>
 </html>

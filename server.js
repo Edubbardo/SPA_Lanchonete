@@ -11,7 +11,8 @@ import PuxarLikesUsuario from './mexerDB/PuxarLikesUsuario.js'
 import DarLike from './mexerDB/DarLike.js';
 import DarDislike from './mexerDB/DarDislike.js';
 import PuxarInteracoesPublicacao from './mexerDB/PuxarInteracoesPublicacao.js';
-
+import PuxarQuantidadeComentarios from './mexerDB/PuxarQuantidadeComentarios.js'
+import PuxarTextoComentarios from './mexerDB/PuxarQuantidadeComentarios.js'
 
 const app = express();
 const port = 3000;
@@ -85,6 +86,28 @@ app.post('/mexerDb/PuxarInteracoesPublicacao.js', async (req, res) => {
     console.error('Erro ao obter interações do post:', erro);
     res.status(500).json({ erro: 'Erro ao buscar interações do post' });
   }
+});
+
+app.post('/mexerDb/PuxarQuantidadeComentarios.js', async (req, res) => {
+  const {id_publicacao} = req.body
+    try {
+        const quantidadeComentarios = await PuxarQuantidadeComentarios(id_publicacao);
+        res.json(quantidadeComentarios);
+    } catch (erro) {
+        console.error('Erro ao obter qtd comentarios:', erro);
+        res.status(500).json({ erro: 'Erro ao obter quantidade de comentários' });
+    }
+});
+
+app.post('/mexerDb/PuxarTextoComentarios.js', async (req, res) => {
+  const {id_publicacao} = req.body
+    try {
+        const quantidadeComentarios = await PuxarTextoComentarios(id_publicacao);
+        res.json(quantidadeComentarios);
+    } catch (erro) {
+        console.error('Erro ao obter texto comentarios:', erro);
+        res.status(500).json({ erro: 'Erro ao obter texto de comentários' });
+    }
 });
 
 app.get('/mexerDb/PuxarPublicacoes.js', async (req, res) => {

@@ -101,11 +101,17 @@
             const id_usuario = usuario ? usuario.id : null;
 
             const respostaInteracoes = await fetch('/mexerDb/PuxarInteracoesPublicacao.js', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ id_publicacao: publicacao.id, id_usuario })
-        });
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id_publicacao: publicacao.id, id_usuario })
+            });
+            const respostaComentarios = await fetch('/mexerDb/PuxarQuantidadeComentarios.js', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id_publicacao: publicacao.id })
+            });
 
+            const comentarios = await respostaComentarios.json();
             const interacoes = await respostaInteracoes.json();
             let srcLike = "Imagens/icones/flecha_cima_vazia.svg";
             let srcDislike = "Imagens/icones/flecha_baixo_vazia.svg";
@@ -133,9 +139,9 @@
                         <img src="${srcDislike}" onClick="Dislike(${publicacao.id})" class='DislikeIcone' id="DislikeIcone${publicacao.id}">
                         <h2 id='dislike-contador-${publicacao.id}'>${interacoes.dislikes}</h2>
                     </div>
-                    <div class="LDC">
-                        <img src='Imagens/icones/chat.svg' onClick="Comentar(${publicacao.id})" class='ComentarioIcone' id="ComentarioIcone${publicacao.id}">
-                        <h2>3</h2>
+                    <div class="LDC" id='atracar-comentarios-${publicacao.id}'>
+                        <img src='Imagens/icones/chat.svg' onClick="AbrirCampoDeComentario(${publicacao.id})" class='ComentarioIcone' id="ComentarioIcone${publicacao.id}">
+                        <h2 id='comentario-contador-${publicacao.id}'>${comentarios}</h2>
                     </div>
                 </div>
             `;
@@ -149,6 +155,28 @@
 }
 
 CarregarPublicacoes();
+
+async function AbrirCampoDeComentario(id_publicacao){
+    const usuario = JSON.parse(localStorage.getItem('usuario'));
+    if (!usuario) return MostrarLogin();
+    try{
+        const resposta = await fetch('./mexerDb/PuxarTextoComentarios.js', {
+            method: 'POST',
+            headers: {'Content-Type' : 'application/json'},
+            body:JSON.stringify({id_publicacao})
+        });
+        const dados = await resposta.json()
+        const divC = document.getElementById(`atracar-comentario-${id_publicacao}`)
+
+        const div = document.createElement('div')
+        div.innerHTML = '<h2>aaaaaaa</h2>'
+
+
+        divC.appendChild(div)
+    }catch(erro){
+        console.error(erro)
+    }
+}
 
 async function Like(id){
     const usuario = JSON.parse(localStorage.getItem('usuario'));
@@ -195,9 +223,6 @@ async function Dislike(id){
     } catch(erro) {
         console.error(erro);
     }
-}
-async function Comentar(id){
-    window.alert(id)
 }
     </script>
 

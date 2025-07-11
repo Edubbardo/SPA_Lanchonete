@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Livraria</title>
+    <title>Sabor do Brasil</title>
     <style>
-        #LikeIcone,#DislikeIcone,#ComentarioIcone{
+        .LikeIcone,.DislikeIcone,.ComentarioIcone{
             width: 30px;
             height: 30px;
             cursor:pointer;
@@ -69,6 +69,7 @@
             width: 160px;
             height: 160px;
             border-radius:1000px;
+            display:block;
             margin:auto;
         }
     </style>
@@ -89,53 +90,114 @@
     <script>    
         async function CarregarPublicacoes() {
     try {
+        const usuario = JSON.parse(localStorage.getItem('usuario'));
         const resposta = await fetch('/mexerDb/PuxarPublicacoes.js');
         const Publicacoes = await resposta.json();
 
         const DivPublicacoes = document.getElementById('DivPublicacoes');
 
-        Publicacoes.publicacoes.forEach(publicacoes => {
+        for (const publicacao of Publicacoes.publicacoes) {
+            const usuario = JSON.parse(localStorage.getItem('usuario'));
+            const id_usuario = usuario ? usuario.id : null;
+
+            const respostaInteracoes = await fetch('/mexerDb/PuxarInteracoesPublicacao.js', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id_publicacao: publicacao.id, id_usuario })
+        });
+
+            const interacoes = await respostaInteracoes.json();
+            let srcLike = "Imagens/icones/flecha_cima_vazia.svg";
+            let srcDislike = "Imagens/icones/flecha_baixo_vazia.svg";
+
+            if (interacoes.interacao_usuario === 'like') {
+                srcLike = "Imagens/icones/flecha_cima_cheia.svg";
+            } else if (interacoes.interacao_usuario === 'dislike') {
+                srcDislike = "Imagens/icones/flecha_baixo_cheia.svg";
+            }
+
             const div = document.createElement("div");
             div.innerHTML = `
-            <div class="publicacoes">
-                <h1 style='margin:0px'>${publicacoes.nome_prato}</h1>
-                <img src="${publicacoes.foto_prato}" class="ImagemPrato">
-                <div style='display:flex;justify-content:space-between'>
-                    <h2 style='margin:0px'>${publicacoes.localizacao}</h2>
-                    <h2 style='margin:0px'>${publicacoes.cidade}</h2>
-                </div>
+                <div class="publicacoes">
+                    <h1 style='margin:0px'>${publicacao.nome_prato}</h1>
+                    <img src="${publicacao.foto_prato}" class="ImagemPrato">
+                    <div style='display:flex;justify-content:space-between'>
+                        <h2 style='margin:0px'>${publicacao.localizacao}</h2>
+                        <h2 style='margin:0px'>${publicacao.cidade}</h2>
+                    </div>
                 </div>
                 <div class="interacoesPublicacoes">
                     <div class="LDC">
-                        <img src="Imagens/icones/flecha_cima_vazia.svg" onClick="Like()" id="LikeIcone">
-                        <h2>1</h2>
-                        <img src="Imagens/icones/flecha_baixo_vazia.svg" onClick="Dislike()" id="DislikeIcone">
-                        <h2>2</h2>
+                        <img src="${srcLike}" onClick="Like(${publicacao.id})" class='LikeIcone' id="LikeIcone${publicacao.id}">
+                        <h2 id='like-contador-${publicacao.id}'>${interacoes.likes}</h2>
+                        <img src="${srcDislike}" onClick="Dislike(${publicacao.id})" class='DislikeIcone' id="DislikeIcone${publicacao.id}">
+                        <h2 id='dislike-contador-${publicacao.id}'>${interacoes.dislikes}</h2>
                     </div>
                     <div class="LDC">
-                        <img src='Imagens/icones/chat.svg' onClick="Comentar()" id="ComentarioIcone">
+                        <img src='Imagens/icones/chat.svg' onClick="Comentar(${publicacao.id})" class='ComentarioIcone' id="ComentarioIcone${publicacao.id}">
                         <h2>3</h2>
                     </div>
                 </div>
             `;
             DivPublicacoes.appendChild(div);
-        });
+        }
 
     } catch (erro) {
         window.alert(erro);
         console.error(erro);
     }
 }
+
 CarregarPublicacoes();
 
-function Comentar(){
-    window.alert('a')
+async function Like(id){
+    const usuario = JSON.parse(localStorage.getItem('usuario'));
+    if (!usuario) return MostrarLogin()
+
+    try{
+        const resposta = await fetch('/mexerDb/DarLike.js', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id_usuario: usuario.id, id_publicacao: id })
+        });
+
+        const dados = await resposta.json();
+        if (dados.sucesso) {
+            attDislikesUsuario()
+            attLikesUsuario()
+            location.reload()
+        } else {
+            alert(dados.mensagem);
+        }
+    }catch(erro){
+
+    }
 }
-function Like(){
-    window.alert('b')
+async function Dislike(id){
+    const usuario = JSON.parse(localStorage.getItem('usuario'));
+    if (!usuario) return MostrarLogin();
+
+    try {
+        const resposta = await fetch('/mexerDb/DarDislike.js', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id_usuario: usuario.id, id_publicacao: id })
+        });
+
+        const dados = await resposta.json();
+        if (dados.sucesso) {
+            attDislikesUsuario()
+            attLikesUsuario()
+            location.reload()
+        } else {
+            alert(dados.mensagem);
+        }
+    } catch(erro) {
+        console.error(erro);
+    }
 }
-function Dislike(){
-    window.alert('c')
+async function Comentar(id){
+    window.alert(id)
 }
     </script>
 
@@ -184,7 +246,6 @@ function Dislike(){
     .then(data => {
     if (data.sucesso) {
       localStorage.setItem('usuario', JSON.stringify(data.usuario));
-      alert('Login bem-sucedido!');
       location.reload()
     } else {
       alert(data.mensagem);
@@ -195,43 +256,7 @@ function Dislike(){
     alert('Erro de conexão com o servidor');
   });
     }
-    async function attLikesUsuario() {
-    const infousuario = JSON.parse(localStorage.getItem('usuario'));
-    const id = infousuario.id;
 
-    try {
-        const resposta = await fetch('/mexerDB/PuxarLikesUsuario.js', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({id})
-        });
-
-        const dados = await resposta.json();
-        document.getElementById('LikesUserTot').textContent = dados.texto;
-    } catch (erro) {
-        document.getElementById('LikesUserTot').textContent = 'Erro ao carregar Likes';
-        console.error(erro);
-    }
-}
-
-    async function attDislikesUsuario() {
-    const infousuario = JSON.parse(localStorage.getItem('usuario'));
-    const id = infousuario.id;
-
-    try {
-        const resposta = await fetch('/mexerDB/PuxarDislikesUsuario.js', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({id})
-        });
-
-        const dados = await resposta.json();
-        document.getElementById('DislikesUserTot').textContent = dados.texto;
-    } catch (erro) {
-        document.getElementById('DislikesUserTot').textContent = 'Erro ao carregar dislikes';
-        console.error(erro);
-    }
-    }
     function LoginFeito(){
         const log = document.getElementById('DivDeLogin')
         log.innerHTML = `
@@ -287,6 +312,44 @@ function Dislike(){
         }
     }
     
+    async function attLikesUsuario() {
+    const infousuario = JSON.parse(localStorage.getItem('usuario'));
+    const id = infousuario.id;
+
+    try {
+        const resposta = await fetch('/mexerDB/PuxarLikesUsuario.js', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({id})
+        });
+
+        const dados = await resposta.json();
+        document.getElementById('LikesUserTot').textContent = dados.texto;
+    } catch (erro) {
+        document.getElementById('LikesUserTot').textContent = 'Erro ao carregar Likes';
+        console.error(erro);
+    }
+}
+
+    async function attDislikesUsuario() {
+    const infousuario = JSON.parse(localStorage.getItem('usuario'));
+    const id = infousuario.id;
+
+    try {
+        const resposta = await fetch('/mexerDB/PuxarDislikesUsuario.js', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({id})
+        });
+
+        const dados = await resposta.json();
+        document.getElementById('DislikesUserTot').textContent = dados.texto;
+    } catch (erro) {
+        document.getElementById('DislikesUserTot').textContent = 'Erro ao carregar dislikes';
+        console.error(erro);
+    }
+    }
+
     if (localStorage.getItem('usuario')){
         attDislikesUsuario()
         attLikesUsuario()

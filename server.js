@@ -8,6 +8,9 @@ import PuxarPublicacoes from './mexerDB/PuxarPublicacoes.js'
 import FazerLogin from './mexerDB/FazerLogin.js'
 import PuxarDislikesUsuario from './mexerDB/PuxarDislikesUsuario.js'
 import PuxarLikesUsuario from './mexerDB/PuxarLikesUsuario.js'
+import DarLike from './mexerDB/DarLike.js';
+import DarDislike from './mexerDB/DarDislike.js';
+import PuxarInteracoesPublicacao from './mexerDB/PuxarInteracoesPublicacao.js';
 
 
 const app = express();
@@ -58,6 +61,30 @@ app.post('/mexerDb/PuxarLikesUsuario.js', async (req, res) => {
         console.error('Erro ao obter likes:', erro);
         res.status(500).json({ erro: 'Erro ao obter likes' });
     }
+});
+
+app.post('/mexerDb/DarLike.js', async (req, res) => {
+  const { id_usuario, id_publicacao } = req.body;
+  const resultado = await DarLike({ id_usuario, id_publicacao });
+  res.json(resultado);
+});
+
+app.post('/mexerDb/DarDislike.js', async (req, res) => {
+  const { id_usuario, id_publicacao } = req.body;
+  const resultado = await DarDislike({ id_usuario, id_publicacao });
+  res.json(resultado);
+});
+
+app.post('/mexerDb/PuxarInteracoesPublicacao.js', async (req, res) => {
+  const { id_publicacao, id_usuario } = req.body;
+
+  try {
+    const interacoes = await PuxarInteracoesPublicacao(id_publicacao, id_usuario);
+    res.json(interacoes);
+  } catch (erro) {
+    console.error('Erro ao obter interações do post:', erro);
+    res.status(500).json({ erro: 'Erro ao buscar interações do post' });
+  }
 });
 
 app.get('/mexerDb/PuxarPublicacoes.js', async (req, res) => {
